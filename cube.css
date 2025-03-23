@@ -1,26 +1,55 @@
 :root {
-    --block-width: 25px;
-    --block-height: 25px;
+    --block-width: 30px;
+    --block-height: 30px;
+    --block-increase: 15px;
 }
-
-.block {
-    width: var(--block-width);
-    height: var(--block-height);
-    transition: background-color 1.5s;
-    margin : 1px
-}
-
-.dummy-block {
-    width: var(--block-width);
-    height: var(--block-height);
-    margin: 1px;
- 
-}
-
-
-.block-button {
-    width: var(--block-width);
-    height: var(--block-height);
-    margin: 1px;
+@media only screen and (max-width: 600px){
+    .block {
+        width: var(--block-width);
+        height: var(--block-height);
+        transition: background-color 1s;
+        margin : 1px
+    }
+    .dummy-block {
+        width: var(--block-width);
+        height: var(--block-height);
+        margin: 1px;
     
+    }
+
+
+    .block-button {
+        width: var(--block-width);
+        height: var(--block-height);
+        margin: 1px;
+        
+    }
 }
+@media only screen and (min-width: 600px) {
+    .block {
+        width: calc(var(--block-width) + var(--block-increase));
+        height: calc(var(--block-height) + var(--block-increase));
+        transition: background-color 1s;
+        margin : 1px
+    }
+    .dummy-block {
+        width: calc(var(--block-width) + var(--block-increase));
+        height: calc(var(--block-height) + var(--block-increase));
+        margin: 1px;
+    
+    }
+
+
+    .block-button {
+        width: calc(var(--block-width) + var(--block-increase));
+        height: calc(var(--block-height) + var(--block-increase));
+        margin: 1px;
+        
+    }
+}
+
+
+
+
+
+
