@@ -1,0 +1,26 @@
+:root {
+    --block-width: 25px;
+    --block-height: 25px;
+}
+
+.block {
+    width: var(--block-width);
+    height: var(--block-height);
+    transition: background-color 1.5s;
+    margin : 1px
+}
+
+.dummy-block {
+    width: var(--block-width);
+    height: var(--block-height);
+    margin: 1px;
+ 
+}
+
+
+.block-button {
+    width: var(--block-width);
+    height: var(--block-height);
+    margin: 1px;
+    
+}
