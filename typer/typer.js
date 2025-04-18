@@ -19,7 +19,7 @@ const wpmElement = document.getElementById("wpm");
 const accuracyElement = document.getElementById("accuracy");
 const progressElement = document.getElementById("progress");
 const ctx = document.getElementById('myChart');
-const currentTypeClassList = ["m-0", "border-bottom","border-warning", "border-2", "fst-italic", "fs-4"];
+const currentTypeClassList = ["m-0", "border-bottom","border-warning", "border-2", "fst-italic", "fs-4", "bg-warning", "bg-opacity-25"];
 const typedClassList = ["m-0", "border-bottom","border-white", "border-2", "fst-italic", "fs-4"];
 const untypedClassList = [ "m-0", "border-bottom","border-white", "border-2", "fst-italic", "fs-4"];
 const specialCharacters = ["?", ",", ";", "/", "{", "}"]
@@ -214,7 +214,7 @@ function setInCorrectTyped(correct, incorrect){
         else {
             charElements[idx].classList.add("text-danger");
         }
-        charElements[idx].classList.add("border-bottom","border-danger", "border-2", "bg-info", "bg-opacity-10");
+        charElements[idx].classList.add("border-bottom","border-danger", "border-2", "bg-danger", "bg-opacity-25");
     }
     }
 
