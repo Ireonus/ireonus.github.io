@@ -1,0 +1,29 @@
+
+
+.blanks {
+    color: white;
+}
+
+.chart-parent {
+    height: 280px;
+}
+
+.xchart {
+   width: 100%; 
+   height: 100%;
+}
+
+#phrase {
+    max-height: 45vh;
+}
+
+#wpm {
+    width: 8ch;
+}
+
+#accuracy {
+    width: 8ch;
+}
+#progress {
+    width: 8ch;
+}

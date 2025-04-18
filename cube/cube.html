@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/c153be024c.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="cube.css">
+    <title>Cube</title>
+</head>
+<body>
+   <div class="container m-auto border border-2">
+        <div class="row border border-1">
+            <h6 class="bg-light">Cube 2D</h6>
+            <p>Simulating Rubik's Cube into a interactive 2D visualisation. Explore the visualisation below using the start, reset, direction and rotation buttons.</p>
+        </div>
+        <div class="d-flex justify-content-center">
+            <button class="btn btn-outline-secondary border border-1 m-1" onclick="start()">Start</button>
+            <button class="btn btn-outline-secondary border border-1 m-1" onclick="reset()">Reset</button>
+            <button class="btn btn-outline-secondary border border-1 m-1" onclick="changeRotation()">
+                <i class="fa-solid fa-arrow-rotate-right"></i>
+            </button>
+        </div>
+        <div class="area">
+            <div class="p-3" id="cube"> 
+            </div>
+        </div>
+   </div> 
+
+<script src="cube.js"></script>
+<script>loadCube()</script>
+</body>
+</html>

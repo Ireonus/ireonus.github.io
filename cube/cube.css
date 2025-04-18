@@ -1,0 +1,84 @@
+:root {
+    --block-width: 30px;
+    --block-height: 30px;
+    --block-increase: 15px;
+}
+
+.bg-orange {
+    background-color: #EA7300;
+}
+.btn-outline-orange{
+    color: #EA7300;
+    border-color : #EA7300;
+}
+.btn-outline-orange:hover {
+    color: #fff;
+    background-color: #EA7300;
+    border-color: #EA7300;
+}
+.bg-darkwhite {
+    background-color: #D6CFB4;
+}
+.btn-outline-darkwhite {
+    color: #D6CFB4;
+    border-color : #D6CFB4;
+}
+.btn-outline-darkwhite:hover {
+    color: #fff;
+    background-color: #D6CFB4;
+    border-color: #D6CFB4;
+
+}
+
+
+
+@media only screen and (max-width: 600px){
+    .block {
+        width: var(--block-width);
+        height: var(--block-height);
+        transition: background-color 1s;
+        margin : 1px
+    }
+    .dummy-block {
+        width: var(--block-width);
+        height: var(--block-height);
+        margin: 1px;
+    
+    }
+
+
+    .block-button {
+        width: var(--block-width);
+        height: var(--block-height);
+        margin: 1px;
+        
+    }
+}
+@media only screen and (min-width: 600px) {
+    .block {
+        width: calc(var(--block-width) + var(--block-increase));
+        height: calc(var(--block-height) + var(--block-increase));
+        transition: background-color 1s;
+        margin : 1px
+    }
+    .dummy-block {
+        width: calc(var(--block-width) + var(--block-increase));
+        height: calc(var(--block-height) + var(--block-increase));
+        margin: 1px;
+    
+    }
+
+
+    .block-button {
+        width: calc(var(--block-width) + var(--block-increase));
+        height: calc(var(--block-height) + var(--block-increase));
+        margin: 1px;
+        
+    }
+}
+
+
+
+
+
+
