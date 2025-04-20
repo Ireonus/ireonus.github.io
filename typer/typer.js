@@ -4,7 +4,8 @@ const progressMin = 0;
 const progressMax = 100;
 const progressIntervalGap = 5;
 const wpmMax = 250;
-
+const commonWords = ["the", "be", "to", "of", "and", "a", "in", "that", "have", "I", "it", "for", "not", "on", "with", "he", "as", "you", "do", "at", "this", "but", "his", "by", "from", "they", "we", "say", "her", "she", "or", "an", "will", "my", "one", "all", "would", "there", "their", "what", "so", "up", "out", "if", "about", "who", "get", "which", "go", "me", "when", "make", "can", "like", "time", "no", "just", "him", "know", "take", "people", "into", "year", "your", "good", "some", "could", "them", "see", "other", "than", "then", "now", "look", "only", "come", "its", "over", "think", "also", "back", "after", "use", "two", "how", "our", "work", "first", "well", "way", "even", "new", "want", "because", "any", "these", "give", "day", "most", "us"];
+const specialCharacters = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ")", "!", "@", "#", "$", "%", "^", "&", "*", "(", "[", "]", "\\", ";", "'", ",", ".", "/", "{", "}", "|", ":", '"', "<", ">", "?", "-", "=", "_", "+"];
 let progressLabels = [];
 for (let i = 0; i < progressMax; i += progressIntervalGap){
     progressLabels.push(i);
@@ -22,7 +23,6 @@ const ctx = document.getElementById('myChart');
 const currentTypeClassList = ["m-0", "border-bottom","border-warning", "border-2", "fst-italic", "fs-4", "bg-warning", "bg-opacity-25"];
 const typedClassList = ["m-0", "border-bottom","border-white", "border-2", "fst-italic", "fs-4"];
 const untypedClassList = [ "m-0", "border-bottom","border-white", "border-2", "fst-italic", "fs-4"];
-const specialCharacters = ["?", ",", ";", "/", "{", "}"]
 
 let chart;
 let correct;
@@ -35,7 +35,7 @@ let current;
 let currentIntervalUpdate;
 let currentIntervalStartTime;
 let currentIntervalEndTime;
-let previousWordsInterval;
+let previousCorrectInterval;
 let progressPercentage;
 let wordCount;
 let wordsPerLine;
@@ -54,7 +54,7 @@ function resetTyper(){
    currentIntervalUpdate = 0;
    currentIntervalStartTime;
    currentIntervalEndTime;
-   previousWordsInterval = 0;
+   previousCorrectInterval = 0;
    progressPercentage = 0;
 
    wpmElement.textContent = '- WPM';
@@ -86,7 +86,9 @@ function shuffleArray(array){
 }
 async function getPhrase(){
     const wordLengths = [3, 4, 5, 6, 7];
-    let number = 30;
+    let number = 15;
+    const commonWordsLength = 50;
+    const specialCharactersLength = 5;
     let url;
     let allWords = [];
     for (let i=0; i < wordLengths.length; i++){
@@ -95,9 +97,12 @@ async function getPhrase(){
         response = await fetch(url);
         data = await response.json();
         allWords = [...allWords, ...data];
-        number -=  5;
     }
-    shuffleArray(allWords)
+
+    shuffleArray(commonWords);
+    shuffleArray(specialCharacters);
+    allWords = [...allWords, ...commonWords.slice(0, commonWordsLength), ...specialCharacters.slice(0, specialCharactersLength)];
+    shuffleArray(allWords);
     return allWords.join(" ")
 }
 
@@ -239,17 +244,20 @@ function undo(correct, incorrect){
     }
 }
 
-function setAverageWordsPerMinute(startTime, endTime, words){
+function setAverageWordsPerMinute(startTime, endTime, correct){
+
     let deltaTimeSeconds = (endTime - startTime) / 1000;
-    let wpm = Math.floor((words / deltaTimeSeconds) * 60) || 0
+    const keystrokesPerWord = 5;
+    let wpm = Math.round(((correct / keystrokesPerWord) / deltaTimeSeconds) * 60);
     wpmElement.textContent = `${wpm} WPM` 
     chart.data.datasets[0].data = Array(chart.data.datasets[1].data.length + 1).fill(wpm);
     chart.update();
 }
 
-function setCurrentWordsPerMinute(startTime, endTime, words){
+function setCurrentWordsPerMinute(startTime, endTime, correct){
     let deltaTimeSeconds = (endTime - startTime) / 1000;
-    let wpm = Math.floor((words / deltaTimeSeconds) * 60) || 0
+    const keystrokesPerWord = 5;
+    let wpm = Math.round(((correct / keystrokesPerWord) / deltaTimeSeconds) * 60);
     chart.data.datasets[1].data.push(wpm);
     chart.update();
 }
@@ -284,6 +292,10 @@ function scrollPhrase(correct, incorrect){
 }
 
 function typeEvent(event){
+    console.log(event)
+    if (event.key.length > 1 && event.key != "Backspace"){
+        return
+    }
     if (event.key == " "){
         event.preventDefault();
     }
@@ -296,10 +308,8 @@ function typeEvent(event){
         startTime = new Date().getTime();
         currentIntervalStartTime = new Date().getTime();
     }    
-    if(event.key == "Shift"){
-        return
-    }
-    else if(event.key == "Backspace"){
+    
+    if(event.key == "Backspace"){
         if (incorrect == 0 && charElements[correct-1].textContent == "_"){
             return
         }
@@ -319,7 +329,6 @@ function typeEvent(event){
             ||  event.key == " " && charElements[correct].textContent == "_")
             ){
             correct += 1;
-            console.log(correct)
             if(event.key == " " || correct == charElements.length){
                 words += 1
                 progressPercentage = (words / wordCount) * 100
@@ -327,15 +336,15 @@ function typeEvent(event){
                     currentIntervalEndTime = new Date().getTime();
                     setAverageWordsPerMinute(startTime, 
                         currentIntervalEndTime, 
-                        words
+                        correct
                     );
                     setCurrentWordsPerMinute(
                         currentIntervalStartTime, 
                         currentIntervalEndTime, 
-                        words - previousWordsInterval
+                        correct - previousCorrectInterval
                     );
                     currentIntervalStartTime = currentIntervalEndTime;
-                    previousWordsInterval = words;
+                    previousCorrectInterval = correct;
                     currentIntervalUpdate += 1;
                 }
             }
