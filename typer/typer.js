@@ -1,5 +1,6 @@
 //const defintion  = `Love is not just a feeling, it's a choice, a commitment, a journey shared. It's the gentle embrace in a crowded room, the knowing glances that speak louder than words. It's the way your laughter fills my heart and the comfort I find in your presence, no matter the storm.`;
 //const wordCount = defintion.split(" ").length;
+
 const progressMin = 0;
 const progressMax = 100;
 const progressIntervalGap = 5;
@@ -19,6 +20,8 @@ const charElements = phraseElement.getElementsByTagName("p");
 const wpmElement = document.getElementById("wpm");
 const accuracyElement = document.getElementById("accuracy");
 const progressElement = document.getElementById("progress");
+const userInputDivElement = document.getElementById("user-input");
+const userInputElement = userInputDivElement.getElementsByTagName("input")[0];
 const ctx = document.getElementById('myChart');
 const currentTypeClassList = ["m-0", "border-bottom","border-warning", "border-2", "fst-italic", "fs-4", "bg-warning", "bg-opacity-25"];
 const typedClassList = ["m-0", "border-bottom","border-white", "border-2", "fst-italic", "fs-4"];
@@ -60,6 +63,9 @@ function resetTyper(){
    wpmElement.textContent = '- WPM';
    accuracyElement.textContent = '- %';
    progressElement.textContent = '- %';
+   userInputDivElement.classList.remove("d-flex");
+   userInputElement.value = "";
+   userInputElement.removeAttribute("disabled")
 
 
    while (phraseElement.firstChild){
@@ -71,7 +77,7 @@ function resetTyper(){
    }
    chart.update()
 
-    document.removeEventListener("keydown", handleTypeEvent);
+    userInputElement.removeEventListener("keydown", handleTypeEvent);
 
 }
 
@@ -85,25 +91,29 @@ function shuffleArray(array){
     }
 }
 async function getPhrase(){
-    const wordLengths = [3, 4, 5, 6, 7];
-    let number = 15;
-    const commonWordsLength = 50;
-    const specialCharactersLength = 5;
-    let url;
-    let allWords = [];
-    for (let i=0; i < wordLengths.length; i++){
-        url = `https://random-word-api.vercel.app/api?words=${number}&length=${wordLengths[i]}`
-//        url = `https://random-word-api.herokuapp.com/word?number=${number}&length=${wordLengths[i]}`
-        response = await fetch(url);
-        data = await response.json();
-        allWords = [...allWords, ...data];
-    }
+//     const wordLengths = [3, 4, 5, 6, 7];
+//     let number = 10;
+//     const commonWordsLength = 50;
+//     const specialCharactersLength = 0;
+//     let url;
+//     let allWords = [];
+//     for (let i=0; i < wordLengths.length; i++){
+//         url = `https://random-word-api.vercel.app/api?words=${number}&length=${wordLengths[i]}`
+// //        url = `https://random-word-api.herokuapp.com/word?number=${number}&length=${wordLengths[i]}`
+//         response = await fetch(url);
+//         data = await response.json();
+//         allWords = [...allWords, ...data];
+//     }
 
-    shuffleArray(commonWords);
-    shuffleArray(specialCharacters);
-    allWords = [...allWords, ...commonWords.slice(0, commonWordsLength), ...specialCharacters.slice(0, specialCharactersLength)];
-    shuffleArray(allWords);
-    return allWords.join(" ")
+//     shuffleArray(commonWords);
+//     shuffleArray(specialCharacters);
+//     allWords = [...allWords, ...commonWords.slice(0, commonWordsLength), ...specialCharacters.slice(0, specialCharactersLength)];
+//     shuffleArray(allWords);
+//     return allWords.join(" ")
+        response = await fetch("moby_dick.json")
+        console.log(response);
+        data = await response.json()
+        return data[Math.floor(Math.random() * data.length)];
 }
 
 function loadChart(){
@@ -151,7 +161,6 @@ function loadChart(){
 
 async function loadPhrase(){
     phrase = await getPhrase();
-    console.log(phrase)
     wordCount = phrase.split(" ").length;
     wordProgressUpdate = Math.floor(wordCount / (progressIntervalGap))
     let charElement;
@@ -186,8 +195,10 @@ async function loadPhrase(){
     }
     current = 0;
     phraseElement.appendChild(pDivElement);
-
-    document.addEventListener("keydown", handleTypeEvent);
+    userInputDivElement.classList.remove("d-none");
+    userInputDivElement.classList.add("d-flex");
+    userInputElement.addEventListener("keydown", handleTypeEvent);
+    userInputElement.focus();
 }
 
 
@@ -209,6 +220,9 @@ function setCorrectTyped(correct){
 
 function setInCorrectTyped(correct, incorrect){
     idx = correct + incorrect - 1;
+    if (idx >= charElements.length){
+        return
+    }
     if (incorrect > 0){
         charElements[idx].className = "";
         charElements[idx].classList.add(...typedClassList);
@@ -225,6 +239,9 @@ function setInCorrectTyped(correct, incorrect){
 
 function setCurrent(correct, incorrect){
     idx = correct + incorrect
+    if (idx >= charElements.length){
+        return
+    }
     charElements[idx].className = "";
     charElements[idx].classList.add(...currentTypeClassList)
     if (charElements[idx].textContent == "_") {
@@ -275,7 +292,7 @@ function setProgress(wordsComplete, wordCount){
 let firstScroll = true;
 function scrollPhrase(correct, incorrect){
     idx = correct + incorrect
-    if (idx < 1 || incorrect > 0){
+    if (idx < 1 || incorrect > 0 || idx >= charElements.length){
         return
     }
     let pTop = charElements[idx - 1].getBoundingClientRect().top;
@@ -291,16 +308,22 @@ function scrollPhrase(correct, incorrect){
 
 }
 
+function clearInput(){
+    userInputElement.value = "";
+}
+
+function disableInput(){
+    userInputElement.setAttribute("disabled", true);
+}
+
 function typeEvent(event){
-    console.log(event)
     if (event.key.length > 1 && event.key != "Backspace"){
         return
     }
-    if (event.key == " "){
-        event.preventDefault();
-    }
+    //if (event.key == " "){
+        //event.preventDefault();
+    //}
     if (correct == charElements.length){
-        console.log('Type Complete....');
         return
     }
     if (!startTimeSet){
@@ -331,6 +354,7 @@ function typeEvent(event){
             correct += 1;
             if(event.key == " " || correct == charElements.length){
                 words += 1
+                clearInput();
                 progressPercentage = (words / wordCount) * 100
                 if (progressPercentage >= progressLabels[currentIntervalUpdate]){
                     currentIntervalEndTime = new Date().getTime();
@@ -347,6 +371,9 @@ function typeEvent(event){
                     previousCorrectInterval = correct;
                     currentIntervalUpdate += 1;
                 }
+            if (correct == charElements.length){
+                disableInput();
+            }
             }
         }
         else {
@@ -360,6 +387,7 @@ function typeEvent(event){
         setInCorrectTyped(correct, incorrect);       
         setCurrent(correct, incorrect);
         scrollPhrase(correct, incorrect);
+
 
        
 }
