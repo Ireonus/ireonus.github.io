@@ -257,6 +257,16 @@ function setErrors(idxValues){
     }
 }
 
+function setUntyped(){
+    for (let idx = 0; idx < charElements.length; idx++){
+        charElements[idx].className = "";
+        charElements[idx].classList.add(...untypedClassList)
+        if (charElements[idx].textContent == "_") {
+            charElements[idx].classList.add("blanks");
+        }
+    }
+}
+
 function setCurrent(correct, incorrect){
     idx = correct + incorrect
     if (idx >= charElements.length){
@@ -337,6 +347,8 @@ function showStartButton(){
     startButtonElement.classList.remove("d-none");
 }
 
+
+
 function typeEvent(event){
     if (event.key.length > 1 && event.key != "Backspace"){
         return
@@ -396,6 +408,7 @@ function typeEvent(event){
                 }
                 chart.update();
             if (correct == charElements.length){
+                setUntyped();
                 setErrors(charErrorIdx);
                 hideUserInput();
                 showStartButton();
