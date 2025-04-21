@@ -3,15 +3,10 @@
 
 const progressMin = 0;
 const progressMax = 100;
-const progressIntervalGap = 5;
+let defaultProgressIntervalGap = 1;
 const wpmMax = 250;
-const commonWords = ["the", "be", "to", "of", "and", "a", "in", "that", "have", "I", "it", "for", "not", "on", "with", "he", "as", "you", "do", "at", "this", "but", "his", "by", "from", "they", "we", "say", "her", "she", "or", "an", "will", "my", "one", "all", "would", "there", "their", "what", "so", "up", "out", "if", "about", "who", "get", "which", "go", "me", "when", "make", "can", "like", "time", "no", "just", "him", "know", "take", "people", "into", "year", "your", "good", "some", "could", "them", "see", "other", "than", "then", "now", "look", "only", "come", "its", "over", "think", "also", "back", "after", "use", "two", "how", "our", "work", "first", "well", "way", "even", "new", "want", "because", "any", "these", "give", "day", "most", "us"];
-const specialCharacters = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ")", "!", "@", "#", "$", "%", "^", "&", "*", "(", "[", "]", "\\", ";", "'", ",", ".", "/", "{", "}", "|", ":", '"', "<", ">", "?", "-", "=", "_", "+"];
 let progressLabels = [];
-for (let i = 0; i < progressMax; i += progressIntervalGap){
-    progressLabels.push(i);
-}
-progressLabels.push(progressMax);
+
 
 
 //elements
@@ -22,6 +17,7 @@ const accuracyElement = document.getElementById("accuracy");
 const progressElement = document.getElementById("progress");
 const userInputDivElement = document.getElementById("user-input");
 const userInputElement = userInputDivElement.getElementsByTagName("input")[0];
+const startButtonElement = document.getElementById("start");
 const ctx = document.getElementById('myChart');
 const currentTypeClassList = ["m-0", "border-bottom","border-warning", "border-2", "fst-italic", "fs-4", "bg-warning", "bg-opacity-25"];
 const typedClassList = ["m-0", "border-bottom","border-white", "border-2", "fst-italic", "fs-4"];
@@ -42,7 +38,8 @@ let previousCorrectInterval;
 let progressPercentage;
 let wordCount;
 let wordsPerLine;
-let wordProgressUpdate;
+let firstScroll;
+let charErrorIdx;
 
 const handleTypeEvent = (event) => typeEvent(event);
 
@@ -59,10 +56,10 @@ function resetTyper(){
    currentIntervalEndTime;
    previousCorrectInterval = 0;
    progressPercentage = 0;
+   firstScroll = true;
+   progressLabels = [];
+   charErrorIdx = [];
 
-   wpmElement.textContent = '- WPM';
-   accuracyElement.textContent = '- %';
-   progressElement.textContent = '- %';
    userInputDivElement.classList.remove("d-flex");
    userInputElement.value = "";
    userInputElement.removeAttribute("disabled")
@@ -72,64 +69,45 @@ function resetTyper(){
     phraseElement.removeChild(phraseElement.lastChild);
    }
 
-   for (let i = 0; i < chart.data.datasets.length; i++){
-    chart.data.datasets[i].data = [];
-   }
+   chart.data.datasets[0].data = [];
+   chart.data.datasets[1].data = [0];
+ 
    chart.update()
-
     userInputElement.removeEventListener("keydown", handleTypeEvent);
 
 }
 
-function shuffleArray(array){
-    for (let i = array.length - 1; i > 0; i--){
-        let j = Math.floor(Math.random() * (i + 1));
-        let temp = array[i];
-        array[i] = array[j]
-        array[j] = temp
-
-    }
-}
 async function getPhrase(){
-//     const wordLengths = [3, 4, 5, 6, 7];
-//     let number = 10;
-//     const commonWordsLength = 50;
-//     const specialCharactersLength = 0;
-//     let url;
-//     let allWords = [];
-//     for (let i=0; i < wordLengths.length; i++){
-//         url = `https://random-word-api.vercel.app/api?words=${number}&length=${wordLengths[i]}`
-// //        url = `https://random-word-api.herokuapp.com/word?number=${number}&length=${wordLengths[i]}`
-//         response = await fetch(url);
-//         data = await response.json();
-//         allWords = [...allWords, ...data];
-//     }
-
-//     shuffleArray(commonWords);
-//     shuffleArray(specialCharacters);
-//     allWords = [...allWords, ...commonWords.slice(0, commonWordsLength), ...specialCharacters.slice(0, specialCharactersLength)];
-//     shuffleArray(allWords);
-//     return allWords.join(" ")
-        response = await fetch("moby_dick.json")
-        console.log(response);
-        data = await response.json()
-        return data[Math.floor(Math.random() * data.length)];
+    response = await fetch("moby_dick.json")
+    data = await response.json()
+    //return 'one two three four five six'
+    return data[Math.floor(Math.random() * data.length)];
 }
 
 function loadChart(){
     chart = new Chart(ctx, {
         type: 'line',
         data: {
-        labels: progressLabels,
+        labels: [0, 20, 40, 60, 80, 100],
         datasets: [{
-            data: [],
+            data: Array(progressLabels.length).fill(0),
             borderWidth: 1,
-            label : "Average"
+            label : "Ave WPM (0)",
+            pointRadius : 0,
+            yAxisID : 'y'
         },
         {
-            data: [],
+            data: [0],
             borderWidth: 1,
-            label : "Current"
+            label : "Δ WPM (0)",
+            yAxisID : 'y'
+        },
+        {
+            data: Array(progressLabels.length).fill(0),
+            borderWidth: 1,
+            label : "Ave Accuracy(0)",
+            pointRadius : 0,
+            yAxisID : 'y1'
         }
     ]
         },
@@ -138,6 +116,7 @@ function loadChart(){
             responsive : true,
             scales: {
                 y: {
+                position : 'left',
                 beginAtZero: true,
                 title : {
                     display : true,
@@ -145,13 +124,27 @@ function loadChart(){
                 },
                 max : wpmMax
                 },
+                y1: {
+                position : 'right',
+                beginAtZero: true,
+                title : {
+                    display : true,
+                    text : "Accuracy (%)"
+                },
+                max : 100
+                },
                 x: {
                     beginAtZero : true,
                     title : {
                         display : true,
                         text : "Progress (%)"
+                    },
+                    min : progressMin,
+                    max : 100,
+                    ticks : {
+                        includeBounds: true,
                     }
-                }
+                },
             }
         }
     });
@@ -160,13 +153,21 @@ function loadChart(){
 
 
 async function loadPhrase(){
+    resetTyper();
     phrase = await getPhrase();
     wordCount = phrase.split(" ").length;
-    wordProgressUpdate = Math.floor(wordCount / (progressIntervalGap))
+    let progressIntervalGap = Math.max((100 / wordCount), defaultProgressIntervalGap)
+    progressLabels = []
+    for (let i = progressMin; i < progressMax; i += progressIntervalGap){
+        progressLabels.push(Math.round(i));
+    }
+    progressLabels.push(progressMax);
+    chart.data.labels = progressLabels;
+    chart.update();
+    defaultProgressIntervalGap
     let charElement;
     let createPDivElement= true;
     let pDivElement;
-    resetTyper();
     for (let i = 0; i < phrase.length; i++){
         if (createPDivElement){
             pDivElement = document.createElement("div");
@@ -195,6 +196,8 @@ async function loadPhrase(){
     }
     current = 0;
     phraseElement.appendChild(pDivElement);
+
+    startButtonElement.classList.add("d-none");
     userInputDivElement.classList.remove("d-none");
     userInputDivElement.classList.add("d-flex");
     userInputElement.addEventListener("keydown", handleTypeEvent);
@@ -237,6 +240,23 @@ function setInCorrectTyped(correct, incorrect){
     }
     }
 
+function setErrors(idxValues){
+    for (let i = 0; i < idxValues.length; i++){
+        idx = idxValues[i];
+        charElements[idx].className = "";
+        charElements[idx].classList.add(...typedClassList);
+        if (charElements[idx].textContent == "_") {
+            charElements[idx].classList.add("blanks");
+
+        }
+        else {
+            charElements[idx].classList.add("text-danger");
+        }
+        charElements[idx].classList.add("border-bottom","border-danger", "border-2", "bg-danger", "bg-opacity-25");
+
+    }
+}
+
 function setCurrent(correct, incorrect){
     idx = correct + incorrect
     if (idx >= charElements.length){
@@ -266,9 +286,8 @@ function setAverageWordsPerMinute(startTime, endTime, correct){
     let deltaTimeSeconds = (endTime - startTime) / 1000;
     const keystrokesPerWord = 5;
     let wpm = Math.round(((correct / keystrokesPerWord) / deltaTimeSeconds) * 60);
-    wpmElement.textContent = `${wpm} WPM` 
-    chart.data.datasets[0].data = Array(chart.data.datasets[1].data.length + 1).fill(wpm);
-    chart.update();
+    chart.data.datasets[0].data = Array(progressLabels.length).fill(wpm);
+    chart.data.datasets[0].label = `Ave WPM (${wpm})` 
 }
 
 function setCurrentWordsPerMinute(startTime, endTime, correct){
@@ -276,20 +295,17 @@ function setCurrentWordsPerMinute(startTime, endTime, correct){
     const keystrokesPerWord = 5;
     let wpm = Math.round(((correct / keystrokesPerWord) / deltaTimeSeconds) * 60);
     chart.data.datasets[1].data.push(wpm);
-    chart.update();
+    chart.data.datasets[1].label = `Δ WPM (${wpm})` 
 }
 
 function setAccuracy(correct, incorrectTotal){
     let accuracy = Math.round(correct / (correct + incorrectTotal) * 100);
-    accuracyElement.textContent = `${accuracy} %`
+    chart.data.datasets[2].data = Array(progressLabels.length).fill(accuracy);
+    chart.data.datasets[2].label = `Ave Accuracy (${accuracy})` 
 
 }
 
-function setProgress(wordsComplete, wordCount){
-    let progress = Math.floor(wordsComplete / wordCount * 100);
-    progressElement.textContent = `${progress} %`
-}
-let firstScroll = true;
+
 function scrollPhrase(correct, incorrect){
     idx = correct + incorrect
     if (idx < 1 || incorrect > 0 || idx >= charElements.length){
@@ -312,17 +328,20 @@ function clearInput(){
     userInputElement.value = "";
 }
 
-function disableInput(){
-    userInputElement.setAttribute("disabled", true);
+function hideUserInput(){
+    userInputDivElement.classList.add("d-none");
+    
+}
+
+function showStartButton(){
+    startButtonElement.classList.remove("d-none");
 }
 
 function typeEvent(event){
     if (event.key.length > 1 && event.key != "Backspace"){
         return
-    }
-    //if (event.key == " "){
-        //event.preventDefault();
-    //}
+    } 
+
     if (correct == charElements.length){
         return
     }
@@ -347,6 +366,10 @@ function typeEvent(event){
         }
     }
     else{
+        if (event.key != charElements[correct + incorrect].textContent
+            && !(event.key == " " && charElements[correct + incorrect].textContent == "_")){
+                charErrorIdx.push(correct + incorrect)
+            }
         if(incorrect == 0 
             && (event.key == charElements[correct].textContent
             ||  event.key == " " && charElements[correct].textContent == "_")
@@ -355,7 +378,7 @@ function typeEvent(event){
             if(event.key == " " || correct == charElements.length){
                 words += 1
                 clearInput();
-                progressPercentage = (words / wordCount) * 100
+                progressPercentage = (words / wordCount) * 100 
                 if (progressPercentage >= progressLabels[currentIntervalUpdate]){
                     currentIntervalEndTime = new Date().getTime();
                     setAverageWordsPerMinute(startTime, 
@@ -371,8 +394,12 @@ function typeEvent(event){
                     previousCorrectInterval = correct;
                     currentIntervalUpdate += 1;
                 }
+                chart.update();
             if (correct == charElements.length){
-                disableInput();
+                setErrors(charErrorIdx);
+                hideUserInput();
+                showStartButton();
+                
             }
             }
         }
@@ -383,7 +410,6 @@ function typeEvent(event){
     }
         setCorrectTyped(correct);
         setAccuracy(correct, incorrectTotal);
-        setProgress(words, wordCount);
         setInCorrectTyped(correct, incorrect);       
         setCurrent(correct, incorrect);
         scrollPhrase(correct, incorrect);

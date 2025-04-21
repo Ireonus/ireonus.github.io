@@ -15,58 +15,23 @@
         <div class="row border border-1">
             <h6 class="bg-light">Typer</h6>
         </div>
-        <div id="type-box" class="d-flex justify-content-center align-items-grow flex-wrap">
-            <div class="chart-parent  col-12 col-md-9 col-lg-10 order-2 order-md-1 border border-1 my-2">
+        <div id="type-box" class="">
+            <div class="chart-parent border border-1 m-1">
                 <canvas id="myChart" class="chart me-6"></canvas>
             </div>
-            <div id="stats" class="order-1 order-md-2 my-2 col-12 col-md-3 col-lg-2">
-                <div class="d-flex flex-column justify-content-around  h-100  border border-1 mx-md-2">
-                    <div class="my-1 d-flex justify-content-start align-items-center">
-                        <p class=" fw-bold mx-1">
-                            Speed:  
-                        </p>
-                        <p id="wpm">
-                            - WPM
-                        </p>
-                    
-    
-                    </div >
-
-                    <div class="my-1 d-flex justify-content-start align-items-center">
-                        <p class="fw-bold mx-1">
-                                Accuracy: 
-                        </p>
-                        <p id="accuracy">
-                            - %
-                        </p>
-        
-                    </div>
-                    <div class="my-1 d-flex justify-content-start align-items-center">
-                        <p class=" fw-bold mx-1">
-                            Progress:  
-                        </p>
-                        <p id="progress">
-                            - %
-                        </p>
-                    
-    
-                    </div >
-                    <div class="d-flex justify-content-center mt-1 mx-1">
-                    <button class="btn btn-outline-secondary w-100" onclick="loadPhrase()">
-                        <i class="fa-solid fa-keyboard"></i>
-                    </button>
-    
-                </div>
-            </div>
-          </div>
 
         </div>
 
-        <div id="phrase" class="d-flex justify-content-start flex-wrap align-items-start overflow-auto"></div>
-        <div class="d-none justify-content-center hidden my-3 col-12 col-md-3 m-auto" id="user-input">
+        <div id="phrase" class="d-flex justify-content-start flex-wrap align-items-start overflow-auto m-1"></div>
+        <div class="d-none justify-content-center hidden my-3 col-12 col-md-6 m-auto" id="user-input">
             <span class="input-group-text">@</span>
             <input type="text" name="" id="text-input" class="form-control" autocomplete="off">
         </div>
+        
+        <div class="my-3 m-1">
+            <button id="start" class="btn btn-outline-secondary w-100" onclick="loadPhrase()">
+            Start 
+            </button>
     </div>
 <script src="typer.js"></script>
 <script>loadChart()</script>
