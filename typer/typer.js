@@ -71,6 +71,7 @@ function resetTyper(){
 
    chart.data.datasets[0].data = [];
    chart.data.datasets[1].data = [0];
+   chart.data.datasets[2].data = [0];
  
    chart.update()
     userInputElement.removeEventListener("keydown", handleTypeEvent);
