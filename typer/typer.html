@@ -15,24 +15,66 @@
         <div class="row border border-1">
             <h6 class="bg-light">Typer</h6>
         </div>
+
         <div id="type-box" class="">
-            <div class="chart-parent border border-1 m-1">
+            <div class="m-1 border border-1 shadow-sm"> 
+                <h6 class="bg-light text-center mb-1">Text Colour Legend</h6>
+                <div class="d-flex justify-content-center gap-3 m-2 flex-wrap">
+                    <span class="badge rounded-pill bg-dark">Untyped</span>
+                    <span class="badge rounded-pill bg-warning text-dark">Current</span>
+                    <span class="badge rounded-pill bg-success">Correct</span>
+                    <span class="badge rounded-pill bg-danger">Incorrect</span>
+                    <span class="badge rounded-pill bg-primary">Slow Pause</span>
+                    <span class="badge rounded-pill bg-info text-dark">Long Pause</span>
+                </div>
+               
+
+            </div>
+                <div class="chart-parent border border-1 m-1 shadow-sm">
                 <canvas id="myChart" class="chart me-6"></canvas>
             </div>
 
-        </div>
-
-        <div id="phrase" class="d-flex justify-content-start flex-wrap align-items-start overflow-auto m-1"></div>
-        <div class="d-none justify-content-center hidden my-3 col-12 col-md-6 m-auto" id="user-input">
-            <span class="input-group-text">@</span>
-            <input type="text" name="" id="text-input" class="form-control" autocomplete="off">
-        </div>
-        
-        <div class="my-3 m-1">
-            <button id="start" class="btn btn-outline-secondary w-100" onclick="loadPhrase()">
-            Start 
-            </button>
+            
+            <div id="phrase" class="d-flex justify-content-start flex-wrap align-items-start overflow-auto m-1"></div>
+            <div class="d-none justify-content-center hidden my-3 col-12 col-md-6 m-auto" id="user-input">
+                <span class="input-group-text">@</span>
+                <input type="text" name="" id="text-input" class="form-control" autocomplete="off">
+            </div>
+            
+            <div class="my-3 m-1">
+                <button id="start" class="btn btn-outline-secondary w-100 shadow-sm" onclick="loadPhrase()">
+                    Start 
+                </button>
+            </div>
     </div>
+<div class="modal", taxindex="-1" id="exampleModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+       <div class="modal-header d-flex justify-content-center">
+        <h5>Summary</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+       </div> 
+       <div class="modal-body">
+        <p>Hmm, you thought that you could type faster didn't you?</p>
+        <div class="d-flex justify-content-around flex-wrap">
+            <div class="col-6">
+                <p class="border boder-1 shadow-sm p-1 m-1 text-center" id="summary-keystrokes"></p>
+            </div>
+            <div class="col-6">
+                <p class="border boder-1 shadow-sm p-1 m-1 text-center" id="summary-time"></p>
+            </div>
+            <div class="col-6">
+            <p class="border boder-1 shadow-sm p-1 m-1 text-center" id="summary-accuracy"></p>
+            </div>
+            <div class="col-6">
+                <p class="border boder-1 shadow-sm p-1 m-1 text-center" id="summary-speed"></p>
+            </div>
+
+        </div>
+       </div>
+</div>
+    </div>
+</div>
 <script src="typer.js"></script>
 <script>loadChart()</script>
 </body>

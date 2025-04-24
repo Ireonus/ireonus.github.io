@@ -81,7 +81,6 @@ function resetTyper(){
 async function getPhrase(){
     response = await fetch("moby_dick.json")
     data = await response.json()
-    //return 'one two three four five six'
     return data[Math.floor(Math.random() * data.length)];
 }
 
@@ -292,19 +291,20 @@ function undo(correct, incorrect){
     }
 }
 
-function setAverageWordsPerMinute(startTime, endTime, correct){
-
+function calculateWPM(startTime, endTime, keystrokes){
     let deltaTimeSeconds = (endTime - startTime) / 1000;
     const keystrokesPerWord = 5;
-    let wpm = Math.round(((correct / keystrokesPerWord) / deltaTimeSeconds) * 60);
+    return Math.round(((keystrokes / keystrokesPerWord) / deltaTimeSeconds) * 60);
+}
+
+function setAverageWordsPerMinute(startTime, endTime, correct){
+    let wpm = calculateWPM(startTime, endTime, correct) 
     chart.data.datasets[0].data = Array(progressLabels.length).fill(wpm);
     chart.data.datasets[0].label = `Ave WPM (${wpm})` 
 }
 
 function setCurrentWordsPerMinute(startTime, endTime, correct){
-    let deltaTimeSeconds = (endTime - startTime) / 1000;
-    const keystrokesPerWord = 5;
-    let wpm = Math.round(((correct / keystrokesPerWord) / deltaTimeSeconds) * 60);
+    let wpm = calculateWPM(startTime, endTime, correct) 
     chart.data.datasets[1].data.push(wpm);
     chart.data.datasets[1].label = `Δ WPM (${wpm})` 
 }
@@ -348,7 +348,161 @@ function showStartButton(){
     startButtonElement.classList.remove("d-none");
 }
 
+const characterFingerGrouping = {
+    leftPinky : ["`", "1", "q", "a", "z"],
+    leftPinkyShift : ["~", "!", "Q", "A", "Z"],
+    leftRing : ["2", "w", "s", "x"],
+    leftRingShift : ["@", "W", "S", "X"],
+    leftMiddle : ["3", "e", "d", "c"],
+    leftMiddleShift : ["#", "E", "D", "C"],
+    leftIndex : ["4", "5", "r", "t", "g", "h", "v", "b"],
+    leftIndexShift : ["$", "%", "R", "T", "G", "H", "V", "B"],
+    rightPinky : ["0", "-", "=", "p", "[", "]", ";", "'", "\\", "/"],
+    rightPinkyShift : [")", "_", "+", "P", "{", "}", ":", '"', "|", "?"],
+    rightRing : ["9", "o", "l", "."],
+    rightRingShift : ["(", "O", "L", ">"],
+    rightMiddle : ["8", "i", "k", ","],
+    rightMiddleShift : ["*", "I", "K", "<"],
+    rightIndex : ["6", "7", "y", "u", "h", "j", "n", "m"],
+    rightIndexShift : ["^", "&", "Y", "U", "H", "J", "N", "m"]
 
+}
+const characterHandMapping = {
+    "`" : ['left', 'pinky'],
+    "1" : ['left', 'pinky'],
+    "q" : ['left', 'pinky'],
+    "a" : ['left', 'pinky'],
+    "z" : ['left', 'pinky'],
+    "~" : ['left', 'shiftPinky'],
+    "!" : ['left', 'shiftPinky'],
+    "Q" : ['left', 'shiftPinky'],
+    "A" : ['left', 'shiftPinky'],
+    "Z" : ['left', 'shiftPinky'],
+    "2" : ['left', 'ring'],
+    "w" : ['left', 'ring'],
+    "s" : ['left', 'ring'],
+    "x" : ['left', 'ring'],
+    "@" : ['left', 'shiftRing'],
+    "W" : ['left', 'shiftRing'],
+    "S" : ['left', 'shiftRing'],
+    "X" : ['left', 'shiftRing'],
+    "3" : ['left', 'middle'],
+    "e" : ['left', 'middle'],
+    "d" : ['left', 'middle'],
+    "c" : ['left', 'middle'],
+    "#" : ['left', 'shiftMiddle'],
+    "E" : ['left', 'shiftMiddle'],
+    "D" : ['left', 'shiftMiddle'],
+    "C" : ['left', 'shiftMiddle'],
+    "4" : ['left', 'index'],
+    "5" : ['left', 'index'],
+    "r" : ['left', 'index'],
+    "t" : ['left', 'index'],
+    "g" : ['left', 'index'],
+    "h" : ['left', 'index'],
+    "v" : ['left', 'index'],
+    "b" : ['left', 'index'],
+    "$" : ['left', 'shiftIndex'],
+    "%" : ['left', 'shiftIndex'],
+    "R" : ['left', 'shiftIndex'],
+    "T" : ['left', 'shiftIndex'],
+    "G" : ['left', 'shiftIndex'],
+    "H" : ['left', 'shiftIndex'],
+    "V" : ['left', 'shiftIndex'],
+    "B" : ['left', 'shiftIndex'],
+    "0" : ['right', 'pinky'],
+    "-" : ['right', 'pinky'],
+    "=" : ['right', 'pinky'],
+    "p" : ['right', 'pinky'],
+    "[" : ['right', 'pinky'],
+    "]" : ['right', 'pinky'],
+    ";" : ['right', 'pinky'],
+    "'" : ['right', 'pinky'],
+    "\\" : ['right', 'pinky'],
+    "/" : ['right', 'pinky'],
+    ")" : ['right', 'shiftPinky'],
+    "_" : ['right', 'shiftPinky'],
+    "+" : ['right', 'shiftPinky'],
+    "P" : ['right', 'shiftPinky'],
+    "{" : ['right', 'shiftPinky'],
+    "}" : ['right', 'shiftPinky'],
+    ":" : ['right', 'shiftPinky'],
+    '"' : ['right', 'shiftPinky'],
+    "|" : ['right', 'shiftPinky'],
+    "?" : ['right', 'shiftPinky'],
+    "9" : ['right', 'ring'],
+    "o" : ['right', 'ring'],
+    "l" : ['right', 'ring'],
+    "." : ['right', 'ring'],
+    "(" : ['right', 'shiftRing'],
+    "O" : ['right', 'shiftRing'],
+    "L" : ['right', 'shiftRing'],
+    ">" : ['right', 'shiftRing'],
+    "8" : ['right', 'middle'],
+    "i" : ['right', 'middle'],
+    "k" : ['right', 'middle'],
+    "," : ['right', 'middle'],
+    "*" : ['right', 'shiftMiddle'],
+    "I" : ['right', 'shiftMiddle'],
+    "K" : ['right', 'shiftMiddle'],
+    "<" : ['right', 'shiftMiddle'],
+    "6" : ['right', 'index'],
+    "7" : ['right', 'index'],
+    "y" : ['right', 'index'],
+    "u" : ['right', 'index'],
+    "h" : ['right', 'index'],
+    "j" : ['right', 'index'],
+    "n" : ['right', 'index'],
+    "m" : ['right', 'index'],
+    "^" : ['right', 'shiftIndex'],
+    "&" : ['right', 'shiftIndex'],
+    "Y" : ['right', 'shiftIndex'],
+    "U" : ['right', 'shiftIndex'],
+    "H" : ['right', 'shiftIndex'],
+    "J" : ['right', 'shiftIndex'],
+    "N" : ['right', 'shiftIndex'],
+    "M" : ['right', 'shiftIndex'],
+} 
+
+
+leftChars = [];
+rightChars = [];
+function getWordDifficulty(word){
+    // 0 alternating hands
+    // 1 no repeating finger use
+    // 2 single repeated finger use
+    // 3 multiple repeated finger use
+    // assumed char always found in either leftChars or rightChars
+    let difficulty = 0;
+    let repeats = 0;
+    let prevLhs;
+    if (leftChars.includes(word[0])){
+        prevLhs = false;
+    }
+    for (let i = 0; i < word.length; i++){
+        lhs = leftChars.includes(word[i])
+        if (prevLhs == lhs){
+            repeats += 1;
+        } 
+    }
+}
+
+function getSlowPauseIdx(word){
+    // 
+}
+
+function showSummary(characters, accuracy, wpm, deltaTime){
+    let summary_characters = document.getElementById('summary-keystrokes');
+    summary_characters.textContent = `Keystrokes : ${characters}`;
+    let summary_accuracy = document.getElementById('summary-accuracy');
+    summary_accuracy.textContent = `Accuracy : ${accuracy}%`;
+    let summary_speed = document.getElementById('summary-speed');
+    summary_speed.textContent = `Speed : ${wpm} WPM`;
+    let summary_time = document.getElementById('summary-time');
+    summary_time.textContent = ` Time : ${deltaTime}s`;
+    var summaryModal = new bootstrap.Modal(document.getElementById('exampleModal'))
+    summaryModal.show()
+}
 
 function typeEvent(event){
     if (event.key.length > 1 && event.key != "Backspace"){
@@ -411,6 +565,12 @@ function typeEvent(event){
             if (correct == charElements.length){
                 setUntyped();
                 setErrors(charErrorIdx);
+
+                showSummary(correct, 
+                    Math.round(correct / (correct + incorrectTotal) * 100),
+                    calculateWPM(startTime, currentIntervalEndTime, correct),
+                    Math.round((currentIntervalEndTime - startTime) / 1000)
+                );
                 hideUserInput();
                 showStartButton();
                 
@@ -422,11 +582,14 @@ function typeEvent(event){
             incorrectTotal += 1;
         }
     }
-        setCorrectTyped(correct);
+        if (correct < charElements.length){
+
+            setCorrectTyped(correct);
+            setCurrent(correct, incorrect);
+            scrollPhrase(correct, incorrect);
+        }
         setAccuracy(correct, incorrectTotal);
         setInCorrectTyped(correct, incorrect);       
-        setCurrent(correct, incorrect);
-        scrollPhrase(correct, incorrect);
 
 
        
