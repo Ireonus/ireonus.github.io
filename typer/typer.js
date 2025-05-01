@@ -19,9 +19,9 @@ const userInputDivElement = document.getElementById("user-input");
 const userInputElement = userInputDivElement.getElementsByTagName("input")[0];
 const startButtonElement = document.getElementById("start");
 const ctx = document.getElementById('myChart');
-const currentTypeClassList = ["m-0", "border-bottom","border-warning", "border-2", "fst-italic", "fs-4", "bg-warning", "bg-opacity-25"];
-const typedClassList = ["m-0", "border-bottom","border-white", "border-2", "fst-italic", "fs-4"];
-const untypedClassList = [ "m-0", "border-bottom","border-white", "border-2", "fst-italic", "fs-4"];
+const currentTypeClassList = ["m-0", "border-bottom","border-warning", "border-2", "fst-italic", "fs-5", "bg-warning", "bg-opacity-25"];
+const typedClassList = ["m-0", "border-bottom","border-white", "border-2", "fst-italic", "fs-5"];
+const untypedClassList = [ "m-0", "border-bottom","border-white", "border-2", "fst-italic", "fs-5"];
 
 let chart;
 let correct;
@@ -156,6 +156,7 @@ async function loadPhrase(){
     resetTyper();
     phrase = await getPhrase();
     wordCount = phrase.split(" ").length;
+    console.log(getPauseIdx(phrase))
     let progressIntervalGap = Math.max((100 / wordCount), defaultProgressIntervalGap)
     progressLabels = []
     for (let i = progressMin; i < progressMax; i += progressIntervalGap){
@@ -398,16 +399,16 @@ const characterHandMapping = {
     "5" : ['left', 'index'],
     "r" : ['left', 'index'],
     "t" : ['left', 'index'],
+    "f" : ['left', 'index'],
     "g" : ['left', 'index'],
-    "h" : ['left', 'index'],
     "v" : ['left', 'index'],
     "b" : ['left', 'index'],
     "$" : ['left', 'shiftIndex'],
     "%" : ['left', 'shiftIndex'],
     "R" : ['left', 'shiftIndex'],
     "T" : ['left', 'shiftIndex'],
+    "F" : ['left', 'shiftIndex'],
     "G" : ['left', 'shiftIndex'],
-    "H" : ['left', 'shiftIndex'],
     "V" : ['left', 'shiftIndex'],
     "B" : ['left', 'shiftIndex'],
     "0" : ['right', 'pinky'],
@@ -465,30 +466,47 @@ const characterHandMapping = {
 } 
 
 
-leftChars = [];
-rightChars = [];
-function getWordDifficulty(word){
-    // 0 alternating hands
-    // 1 no repeating finger use
-    // 2 single repeated finger use
-    // 3 multiple repeated finger use
-    // assumed char always found in either leftChars or rightChars
-    let difficulty = 0;
-    let repeats = 0;
-    let prevLhs;
-    if (leftChars.includes(word[0])){
-        prevLhs = false;
-    }
-    for (let i = 0; i < word.length; i++){
-        lhs = leftChars.includes(word[i])
-        if (prevLhs == lhs){
-            repeats += 1;
-        } 
-    }
-}
 
-function getSlowPauseIdx(word){
-    // 
+
+function getPauseIdx(word){
+    let counterIdx = [];
+    let pauseIdx = [];
+    let pauseCounter = 0;
+    let previousHand = null;
+    let previousFinger = null;
+    let hand, finger;
+    //0 for no pause
+    // 1 for quick pause
+    //2 for long pause
+    for (let i = 0; i < word.length; i++){
+        if (word[i] == " "){
+            pauseCounter = 0;
+            continue
+        }
+        hand = characterHandMapping[word[i]][0];
+        finger = characterHandMapping[word[i]][0];
+        console.log(pauseCounter)
+        if (hand == previousHand){
+            pauseCounter += 1
+        }
+        else {
+            pauseCounter = 0;
+        }
+        counterIdx.push(pauseCounter);
+        if (pauseCounter > 1){
+            pauseIdx.push('long');
+        }
+        else if (pauseCounter == 1){
+            pauseIdx.push('quick');
+        }
+        else {
+            pauseIdx.push(null);
+        }
+        previousHand = hand;
+        previousFinger = finger;
+    }
+    return pauseIdx
+     
 }
 
 function showSummary(characters, accuracy, wpm, deltaTime){
