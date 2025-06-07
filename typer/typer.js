@@ -156,10 +156,9 @@ async function loadPhrase(){
     resetTyper();
     phrase = await getPhrase();
     wordCount = phrase.split(" ").length;
-    console.log(getPauseIdx(phrase))
     let progressIntervalGap = Math.max((100 / wordCount), defaultProgressIntervalGap)
     progressLabels = []
-    for (let i = progressMin; i < progressMax; i += progressIntervalGap){
+    for (let i = progressMin; i < progressMax - 1; i += progressIntervalGap){
         progressLabels.push(Math.round(i));
     }
     progressLabels.push(progressMax);
