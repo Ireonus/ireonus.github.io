@@ -10,12 +10,12 @@ let globalClockwise = true;
 
 //rotate row idx
 const colorRotationIdx = {
-    "primary": {
+    "darkwhite": {
         "insideOrder": [2, 1, 0, 0, 3, 6, 6, 7, 8, 8, 5, 2],
         "outsideOrder": [51, 52, 53, 9, 10, 11, 18, 19, 20, 27, 28, 29],
         "reverse" : true
     },
-    "secondary" : {
+    "orange" : {
         "insideOrder": [ 9, 12, 15, 15, 16, 17, 17, 14, 11, 11, 10, 9],
         "outsideOrder": [51, 48, 45, 42, 39, 36, 24, 21, 18, 6, 3, 0],
         "reverse": true
@@ -108,6 +108,8 @@ async function rotateCube(side, event){
     rotatingCube = true;
     const clockwise = event.shiftKey ? !globalClockwise : globalClockwise;
 //    [...blockRotateButtons].map((b) => {b.setAttribute("disabled", true)});
+    console.log(side)
+    console.log(event)
     let outsideRowIdx = colorRotationIdx[side]["outsideOrder"];
     let outsideRowBlocks = outsideRowIdx.map((i) => blocks[i]);
     let outsideRowBlocksClassName = outsideRowBlocks.map((b) => b.className);
